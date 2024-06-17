@@ -1,0 +1,34 @@
+#dashboard-layout {
+    font-size: 12px;
+}
+
+#dashboard-layout main {
+    min-height: calc(100vh - 100px);
+}
+
+#dashboard-layout main section {
+    min-height: calc(100vh - 100px);
+    padding: 10px;
+}
+
+.btn-primary {
+    background-color: var(--black);
+    border-color: var(--black);
+    color: var(--white);
+}
+
+.btn-primary:hover,
+.btn-check:checked+.btn-primary,
+.btn-primary.active,
+.btn-primary.show,
+.btn-primary:first-child:active,
+:not(.btn-check)+.btn-primary:active {
+    background-color: var(--black);
+    border-color: var(--black);
+    color: var(--white);
+}
+
+.btn-close:focus {
+    box-shadow: none;
+}
+

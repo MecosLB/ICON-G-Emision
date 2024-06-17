@@ -1,0 +1,23 @@
+#dashboard-layout header nav {
+    padding: 10px;
+}
+
+#dashboard-layout .offcanvas {
+    font-size: 15px;
+}
+
+#dashboard-layout .offcanvas-footer {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+}
+
+#dashboard-layout .offcanvas-body .list-group-item {
+    border-color: transparent;
+    background-color: transparent;
+}
+
+#dashboard-layout .router-link-exact-active {
+    font-weight: bold;
+}

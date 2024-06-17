@@ -1,0 +1,16 @@
+#dashboard-layout .dropdown {
+    position: unset !important;
+}
+
+#dashboard-layout .dropdown-menu {
+    font-size: 12px !important;
+}
+
+#dashboard-layout .dropdown-item:hover,
+#dashboard-layout .dropdown-item.active,
+#dashboard-layout .dropdown-item:active {
+    color: var(--black);
+    text-decoration: none;
+    background-color: transparent;
+    font-weight: bold;
+}
