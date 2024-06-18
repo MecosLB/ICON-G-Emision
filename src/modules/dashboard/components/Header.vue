@@ -1,7 +1,14 @@
 <script setup>
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
 const closeSidebar = () => {
     const btn = document.getElementById('btn-sidebar');
     btn.click();
+}
+
+const closeSession = () => {
+    router.push({ name: 'auth' });
 }
 </script>
 
@@ -35,7 +42,7 @@ const closeSidebar = () => {
                 </div>
 
                 <div class="offcanvas-footer">
-                    <button type="button" class="btn btn-sm btn-outline-danger">
+                    <button type="button" class="btn btn-sm btn-outline-danger" @click="closeSession">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
