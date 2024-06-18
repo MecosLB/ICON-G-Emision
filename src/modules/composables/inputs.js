@@ -17,7 +17,7 @@ export const validateEmail = (value) => {
 }
 
 export const validateRfc = (value) => {
-    const regExp = /^[A-Z]{4}\d{6}[A-Z0-9]{3}$/;
+    const regExp = /^[A-Z&Ñ]{4}\d{6}[A-Z&Ñ0-9]{3}$/;
     if (!regExp.test(value)) return false;
     return true;
 }

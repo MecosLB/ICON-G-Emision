@@ -32,15 +32,15 @@ if (($_SERVER['REQUEST_METHOD'] == 'POST')) {
         $page = $pagination['page'];
     }
 
-    if ((!isset($_POST['rfc'])) || (empty($_POST['rfc']))) {
+    if ((!isset($_POST['rfcEmisor'])) || (empty($_POST['rfcEmisor']))) {
         $error = true;
         $message = 'C000 - Ocurrió un error al intentar realizar una solicitud. </br> Descripción de el error: </br>';
         goto End;
     }
 
-    $rfc = trim($_POST['rfc']);
+    $rfcEmisor = trim($_POST['rfcEmisor']);
 
-    $query = 'SELECT * FROM `clientes` WHERE `clientes`.`rfcEmisor` = "' . $rfc . '" AND `clientes`.`estatus` <> "Eliminado" ';
+    $query = 'SELECT * FROM `clientes` WHERE `clientes`.`rfcEmisor` = "' . $rfcEmisor . '" AND `clientes`.`estatus` <> "Eliminado" ';
 
     if (isset($_POST['filters'])) {
 

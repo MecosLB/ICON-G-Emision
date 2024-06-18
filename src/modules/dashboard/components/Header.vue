@@ -1,7 +1,14 @@
+<script setup>
+const closeSidebar = () => {
+    const btn = document.getElementById('btn-sidebar');
+    btn.click();
+}
+</script>
+
 <template>
     <header>
         <nav>
-            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar"
+            <button id="btn-sidebar" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar"
                 aria-controls="sidebar">
                 <i class="fa-solid fa-bars-staggered"></i>
             </button>
@@ -15,12 +22,12 @@
 
                 <div class="offcanvas-body">
                     <ul class="list-group">
-                        <router-link :to="{ name: 'home' }" class="list-group-item list-group-item-action">
+                        <router-link :to="{ name: 'home' }" class="list-group-item list-group-item-action" @click="closeSidebar">
                             <i class="fa-solid fa-house me-2"></i>
                             Inicio
                         </router-link>
 
-                        <router-link :to="{ name: 'costumers' }" class="list-group-item list-group-item-action">
+                        <router-link :to="{ name: 'costumers' }" class="list-group-item list-group-item-action" @click="closeSidebar">
                             <i class="fa-solid fa-address-book me-2"></i>
                             Clientes
                         </router-link>

@@ -8,11 +8,13 @@ import LoaderData from '@/modules/dashboard/components/LoaderData.vue';
 import Alert from '@/modules/dashboard/components/Alert.vue';
 import Pagination from '@/modules/dashboard/components/Pagination.vue';
 
-import { getCostumers } from '@/modules/helpers/costumers.js'
+import { createCostumer, deleteCostumer, getCostumers, updateCostumer } from '@/modules/helpers/costumers.js'
 
 import { showAlert, showToast } from '@/modules/composables/alert.js';
 import { removeError, removeErrors, setError } from '@/modules/composables/forms.js';
 import { validateCurp, validateCP, validateEmail, validateRfc, validatePhone } from '@/modules/composables/inputs.js';
+
+const rfcEmisor = ref('XAXX010101000');
 
 onMounted(async () => {
     await loadView();
@@ -21,7 +23,6 @@ onMounted(async () => {
 const actionCostumer = async () => {
     if (actionModal.value == 'Agregar') newCostumer();
     if (actionModal.value == 'Editar') editCostumer();
-
 }
 
 const actionModal = ref('Agregar');
@@ -30,10 +31,8 @@ const changePagination = async (pagination) => {
     showLoaderData.value = true;
     costumers.value = [];
 
-    setTimeout(async () => {
-        await loadCostumers();
-        showLoaderData.value = false;
-    }, 1000);
+    await loadCostumers();
+    showLoaderData.value = false;
 }
 
 const closeModalCostumer = () => {
@@ -70,9 +69,20 @@ const confirmDelete = () => {
         confirmButtonText: '<i class="fa-solid fa-check text-success"></i> Si, Eliminar',
         cancelButtonText: '<i class="fa-solid fa-xmark text-danger"></i> No, cancelar',
         reverseButtons: true
-    }).then((result) => {
+    }).then(async (result) => {
         if (result.isConfirmed) {
-            showAlert({ icon: 'success', title: '¡ÉXITO!', message: 'Se eliminó con éxito el cliente seleccionado.' });
+            const response = await deleteCostumer();
+
+            if (response.error) {
+                showAlert({ icon: 'error', title: '¡ERROR!', message: response.message });
+                return;
+            }
+
+            resetData();
+            resetPagination();
+            await loadCostumers();
+
+            showAlert({ icon: 'success', title: '¡ÉXITO!', message: response.message });
         }
     });
 }
@@ -94,18 +104,32 @@ const costumerForm = ref({
 const costumers = ref([]);
 
 const editCostumer = async () => {
-    setTimeout(async () => {
-        showLoaderForm.value = false;
-        resetFormCostumer();
-        document.getElementById('btnCloseModal').click();
-        showAlert({ icon: 'success', title: '¡ÉXITO!', message: 'Se actualizó con éxito el cliente.' });
-    }, 1000);
+    showLoaderForm.value = true;
+
+    const response = await updateCostumer(rfcEmisor.value, costumerForm.value);
+
+    showLoaderForm.value = false;
+
+    if (response.error) {
+        showAlert({ icon: 'error', title: '¡ERROR!', message: response.message });
+        return;
+    }
+
+    showLoaderData.value = true;
+
+    resetData();
+    resetPagination();
+    await loadCostumers();
+    
+    document.getElementById('btnCloseModal').click();
+
+    showLoaderData.value = false;
+    
+    showAlert({ icon: 'success', title: '¡ÉXITO!', message: response.message });
 }
 
 const loadCostumers = async () => {
-    const rfc = 'XAXX010101000';
-
-    const response = await getCostumers(rfc, configPagination.value);
+    const response = await getCostumers(rfcEmisor.value, configPagination.value);
 
     if (response.error) {
         configAlert.value = {
@@ -120,10 +144,8 @@ const loadCostumers = async () => {
 }
 
 const loadView = async () => {
-    setTimeout(async () => {
-        await loadCostumers();
-        showView.value = true;
-    }, 1000);
+    await loadCostumers();
+    showView.value = true;
 }
 
 const modalCostumer = (action) => {
@@ -131,15 +153,38 @@ const modalCostumer = (action) => {
 }
 
 const newCostumer = async () => {
-    setTimeout(async () => {
-        showLoaderForm.value = false;
-        resetFormCostumer();
-        document.getElementById('btnCloseModal').click();
-        showAlert({ icon: 'success', title: '¡ÉXITO!', message: 'Se registró con éxito el nuevo cliente.' });
-    }, 1000);
+    showLoaderForm.value = true;
+
+    const response = await createCostumer(rfcEmisor.value, costumerForm.value);
+
+    showLoaderForm.value = false;
+
+    if (response.error) {
+        showAlert({ icon: 'error', title: '¡ERROR!', message: response.message });
+        return;
+    }
+
+    showLoaderData.value = true;
+
+    resetData();
+    resetPagination();
+    await loadCostumers();
+    
+    document.getElementById('btnCloseModal').click();
+
+    showLoaderData.value = false;
+    
+    showAlert({ icon: 'success', title: '¡ÉXITO!', message: response.message });
+}
+
+const resetData = () => {
+    costumers.value = [];
 }
 
 const resetFormCostumer = () => {
+    document.getElementById('rfc-input').removeAttribute('disabled');
+    document.getElementById('curp-input').removeAttribute('disabled');
+
     costumerForm.value = {
         id: '',
         rfc: '',
@@ -155,8 +200,19 @@ const resetFormCostumer = () => {
     };
 }
 
+const resetPagination = () => {
+    configPagination.value = {
+        page: 1,
+        totalPages: 0,
+        totalRows: 10,
+    };
+}
+
 const setCostumer = (costumer) => {
     actionModal.value = 'Editar';
+
+    document.getElementById('rfc-input').setAttribute('disabled', true);
+    document.getElementById('curp-input').setAttribute('disabled', true);
 
     const form = costumerForm.value;
 
@@ -274,8 +330,6 @@ const validateForm = () => {
         return;
     }
 
-    showLoaderForm.value = true;
-
     actionCostumer();
 }
 </script>
@@ -321,15 +375,15 @@ const validateForm = () => {
 
                     <tbody v-if="costumers.length > 0">
                         <tr v-for="costumer in costumers" :key="costumer.id">
-                            <td class="align-middle" v-html="costumer.razonSocial"></td>
-                            <td class="align-middle" v-html="costumer.rfc"></td>
-                            <td class="align-middle" v-html="costumer.curp"></td>
-                            <td class="align-middle" v-html="costumer.correo"></td>
-                            <td class="align-middle" v-html="costumer.telefono"></td>
-                            <td class="align-middle" v-html="costumer.fechaDeNacimiento"></td>
+                            <td class="align-middle text-truncate" v-html="costumer.razonSocial"></td>
+                            <td class="align-middle text-truncate" v-html="costumer.rfc"></td>
+                            <td class="align-middle text-truncate" v-html="costumer.curp"></td>
+                            <td class="align-middle text-truncate" v-html="costumer.correo"></td>
+                            <td class="align-middle text-truncate" v-html="costumer.telefono"></td>
+                            <td class="align-middle text-truncate" v-html="costumer.fechaDeNacimiento"></td>
                             <td class="align-middle">
                                 <div class="dropdown dropstart">
-                                    <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="dropdown"
+                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="dropdown"
                                         aria-expanded="false">
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </button>

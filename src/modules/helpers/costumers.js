@@ -3,13 +3,15 @@ import axios from 'axios';
 import store from '@/store';
 
 const api = store.state.api;
-const endPoint = `${api}/clientes`;
+const endPoint = `${api}/costumers`;
 
-export const deleteCostumer = async (costumer) => {
+export const createCostumer = async (rfcEmisor, costumer) => {
     try {
-        const url = ``;
+        const url = `${endPoint}/create/`;
 
         const formData = new FormData();
+
+        formData.append('rfcEmisor', rfcEmisor);
 
         formData.append('costumer', JSON.stringify(costumer));
 
@@ -23,13 +25,33 @@ export const deleteCostumer = async (costumer) => {
     }
 }
 
-export const getCostumers = async (rfc, pagination = {}) => {
+export const deleteCostumer = async (rfcEmisor, costumer) => {
     try {
-        const url = `${endPoint}/consultar/`;
+        const url = `${endPoint}/delete/`;
 
         const formData = new FormData();
 
-        formData.append('rfc', rfc);
+        formData.append('rfcEmisor', rfcEmisor);
+
+        formData.append('costumer', JSON.stringify(costumer));
+
+        const response = await axios.post(url, formData);
+
+        const { error, message } = response.data;
+
+        return { error: error, message: message }
+    } catch (error) {
+        return { error: true, message: error }
+    }
+}
+
+export const getCostumers = async (rfcEmisor, pagination = {}) => {
+    try {
+        const url = `${endPoint}/read/`;
+
+        const formData = new FormData();
+
+        formData.append('rfcEmisor', rfcEmisor);
 
         formData.append('pagination', JSON.stringify(pagination));
 
@@ -43,29 +65,13 @@ export const getCostumers = async (rfc, pagination = {}) => {
     }
 }
 
-export const newCostumer = async (costumer) => {
+export const updateCostumer = async (rfcEmisor, costumer) => {
     try {
-        const url = ``;
+        const url = `${endPoint}/update/`;
 
         const formData = new FormData();
 
-        formData.append('costumer', JSON.stringify(costumer));
-
-        const response = await axios.post(url, formData);
-
-        const { error, message } = response.data;
-
-        return { error: error, message: message }
-    } catch (error) {
-        return { error: true, message: error }
-    }
-}
-
-export const updateCostumer = async (costumer) => {
-    try {
-        const url = ``;
-
-        const formData = new FormData();
+        formData.append('rfcEmisor', rfcEmisor);
 
         formData.append('costumer', JSON.stringify(costumer));
 
