@@ -45,7 +45,7 @@ export const deleteCostumer = async (rfcEmisor, costumer) => {
     }
 }
 
-export const getCostumers = async (rfcEmisor, pagination = {}) => {
+export const getCostumers = async (rfcEmisor, pagination = {}, filters = {}) => {
     try {
         const url = `${endPoint}/read/`;
 
@@ -54,6 +54,8 @@ export const getCostumers = async (rfcEmisor, pagination = {}) => {
         formData.append('rfcEmisor', rfcEmisor);
 
         formData.append('pagination', JSON.stringify(pagination));
+
+        formData.append('filters', JSON.stringify(filters));
 
         const response = await axios.post(url, formData);
 

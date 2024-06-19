@@ -43,7 +43,13 @@ if (($_SERVER['REQUEST_METHOD'] == 'POST')) {
     $query = 'SELECT * FROM `clientes` WHERE `clientes`.`rfcEmisor` = "' . $rfcEmisor . '" AND `clientes`.`estatus` <> "Eliminado" ';
 
     if (isset($_POST['filters'])) {
-
+        $filters = json_decode($_POST['filters'], true);
+        foreach ($filters as $key => $value) {
+            $value = trim($value);
+            if (!empty($value)) {
+                $query.= 'AND `clientes`.`' . $key . '` LIKE "%' . $value . '%" ';
+            }
+        }
     }
 
     $result = $connection->query($query);
