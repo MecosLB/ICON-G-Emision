@@ -65,3 +65,27 @@
 .btn-close:focus {
     box-shadow: none;
 }
+
+.multiselect,
+.multiselect-wrapper {
+    height: 31px;
+    min-height: 31px;
+    font-size: 12px;
+}
+
+.multiselect.is-active {
+    box-shadow: none;
+}
+
+.multiselect-option {
+    font-size: 12px;
+}
+
+.multiselect-option.is-selected {
+    color: var(--white);
+    background-color: var(--black);
+}
+
+.multiselect-search {
+    border: 1px solid #CCCCCC;
+}
