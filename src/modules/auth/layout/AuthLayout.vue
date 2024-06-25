@@ -1,9 +1,11 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { RouterView } from 'vue-router';
+
+import '@/modules/auth/assets/css/auth.css';
 </script>
 
 <template>
-    <div class="auth-layout">
+    <div id="auth-layout">
         <RouterView />
     </div>
 </template>
