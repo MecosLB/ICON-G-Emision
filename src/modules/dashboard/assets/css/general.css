@@ -68,24 +68,24 @@
 
 .multiselect,
 .multiselect-wrapper {
-    height: 31px;
-    min-height: 31px;
-    font-size: 12px;
+    height: 31px !important;
+    min-height: 31px !important;
+    font-size: 12px !important;
 }
 
 .multiselect.is-active {
-    box-shadow: none;
+    box-shadow: none !important;
 }
 
 .multiselect-option {
-    font-size: 12px;
+    font-size: 12px !important;
 }
 
 .multiselect-option.is-selected {
-    color: var(--white);
-    background-color: var(--black);
+    color: var(--white) !important;
+    background-color: var(--black) !important;
 }
 
 .multiselect-search {
-    border: 1px solid #CCCCCC;
+    border: 1px solid #CCCCCC !important;
 }
