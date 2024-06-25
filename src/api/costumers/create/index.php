@@ -32,6 +32,18 @@ if (($_SERVER['REQUEST_METHOD'] == 'POST')) {
         $message = 'C003 - Cuerpo de petición invalida. ';
         goto End;
     }
+    
+    if ((!isset($_POST['token'])) || (empty($_POST['token']))) {
+        $error = true;
+        $message = 'C010 - No se encontro sesion activa';
+        goto End;
+    }
+
+    if(!validarToken(trim($_POST['token']),$connection)){
+        $error = true;
+        $message = 'C010 - Token invalido';
+        goto End;
+    }
 
     $costumer = json_decode(trim($_POST['costumer']), true);
 

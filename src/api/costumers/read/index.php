@@ -6,6 +6,7 @@ header('Content-Type: application/json; charset=UTF-8');
 header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
 
 require_once('../../bd/connection.php');
+require_once('../../shared/validations.php');
 
 $response = array();
 
@@ -38,6 +39,18 @@ if (($_SERVER['REQUEST_METHOD'] == 'POST')) {
         goto End;
     }
 
+    if ((!isset($_POST['token'])) || (empty($_POST['token']))) {
+        $error = true;
+        $message = 'C010 - No se encontro sesion activa';
+        goto End;
+    }
+
+    if(!validarToken(trim($_POST['token']),$connection)){
+        $error = true;
+        $message = 'C010 - Token invalido';
+        goto End;
+    }
+    
     $rfcEmisor = trim($_POST['rfcEmisor']);
 
     $query = 'SELECT * FROM `clientes` WHERE `clientes`.`rfcEmisor` = "' . $rfcEmisor . '" AND `clientes`.`estatus` <> "Eliminado" ';

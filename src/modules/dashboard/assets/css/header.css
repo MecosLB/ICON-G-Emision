@@ -21,3 +21,15 @@
 #dashboard-layout .router-link-exact-active {
     font-weight: bold;
 }
+
+#dashboard-layout .logo-offcanvas {
+    position: absolute;
+    color: var(--black);
+    font-weight: 800;
+    font-size: 37px;
+    letter-spacing: -2px;
+}
+
+#dashboard-layout .logo-offcanvas>span {
+    font-size: 34px;
+}

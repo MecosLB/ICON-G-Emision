@@ -149,6 +149,7 @@ const loadCostumers = async () => {
     const response = await getCostumers(rfcEmisor.value, configPagination.value, filtersForm.value);
 
     if (response.error) {
+        showAlert({ icon: 'error', title: '¡ERROR!', message: response.message });
         configAlert.value.message = response.message;
         return;
     }

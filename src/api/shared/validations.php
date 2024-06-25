@@ -1,5 +1,4 @@
 <?php
-
 function validateCurp ($value) {
     $regEx = '/^[A-Z]{4}\d{6}[A-Z]{6}\d{2}$/';
 
@@ -48,4 +47,20 @@ function validateRfc ($value) {
     }
 
     return true;
+};
+
+function validarToken($token,$connection) {
+    $query = 'SELECT * FROM `tokens` WHERE `tokens`.`token` = "' . $token . '"';
+    $result = $connection->query($query);
+
+    if ($result->num_rows > 0) {
+        $reg_token = $result->fetch_assoc();
+        $fecha_caducidad = new DateTime($reg_token['fechaCaducidad']);
+        $fecha_hoy = new DateTime();
+        
+        if ($reg_token['token'] == $token && $fecha_hoy <= $fecha_caducidad) {
+            return true;
+        }
+    }
+    return false;
 };

@@ -30,6 +30,17 @@ if (($_SERVER['REQUEST_METHOD'] == 'POST')) {
         $message = 'C002 - Ocurrió un error al intentar realizar una solicitud. </br> Descripción de el error: </br>';
         goto End;
     }
+    if ((!isset($_POST['token'])) || (empty($_POST['token']))) {
+        $error = true;
+        $message = 'C010 - No se encontro sesion activa';
+        goto End;
+    }
+
+    if(!validarToken(trim($_POST['token']),$connection)){
+        $error = true;
+        $message = 'C010 - Token invalido';
+        goto End;
+    }
 
     $costumer = json_decode(trim($_POST['costumer']), true);
 

@@ -24,11 +24,13 @@ const closeSession = () => {
                 <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="sidebar"
                     aria-labelledby="sidebarLabel">
                     <div class="offcanvas-header">
-                        <h5 class="offcanvas-title" id="sidebarLabel"></h5>
+                        <h5 class="logo-offcanvas">
+                            icon•<span>G</span>
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                     </div>
 
-                    <div class="offcanvas-body">
+                    <div class="offcanvas-body p-2">
                         <ul class="list-group">
                             <router-link :to="{ name: 'home' }" class="list-group-item list-group-item-action" @click="closeSidebar">
                                 <i class="fa-solid fa-house me-2"></i>
