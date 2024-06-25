@@ -3,9 +3,9 @@ import { onMounted, ref } from 'vue';
 
 import Multiselect from '@vueform/multiselect';
 
-import LoaderView from '@/modules/dashboard/components/LoaderView.vue';
-import LoaderData from '@/modules/dashboard/components/LoaderData.vue';
-import Alert from '@/modules/dashboard/components/Alert.vue';
+import LoaderView from '@/modules/components/LoaderView.vue';
+import LoaderData from '@/modules/components/LoaderData.vue';
+import Alert from '@/modules/components/Alert.vue';
 
 const rfcEmisor = ref('XAXX010101000');
 

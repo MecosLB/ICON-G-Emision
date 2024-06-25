@@ -8,7 +8,7 @@ const closeSidebar = () => {
 }
 
 const closeSession = () => {
-    router.push({ name: 'auth' });
+    router.push({ name: 'login' });
 }
 </script>
 

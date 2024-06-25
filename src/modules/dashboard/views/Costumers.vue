@@ -3,10 +3,10 @@ import { onMounted, ref } from 'vue';
 
 import Swal from 'sweetalert2';
 
-import LoaderView from '@/modules/dashboard/components/LoaderView.vue';
-import LoaderData from '@/modules/dashboard/components/LoaderData.vue';
-import Alert from '@/modules/dashboard/components/Alert.vue';
-import Pagination from '@/modules/dashboard/components/Pagination.vue';
+import LoaderView from '@/modules/components/LoaderView.vue';
+import LoaderData from '@/modules/components/LoaderData.vue';
+import Alert from '@/modules/components/Alert.vue';
+import Pagination from '@/modules/components/Pagination.vue';
 
 import { createCostumer, deleteCostumer, getCostumers, updateCostumer } from '@/modules/helpers/costumers.js'
 

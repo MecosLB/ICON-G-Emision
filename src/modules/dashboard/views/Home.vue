@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 
-import LoaderView from '@/modules/dashboard/components/LoaderView.vue';
+import LoaderView from '@/modules/components/LoaderView.vue';
 
 const rfcEmisor = ref('XAXX010101000');
 

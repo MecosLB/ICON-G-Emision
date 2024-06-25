@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from 'vue';
 
-const props = defineProps([ 'pagination' ]);
+const props = defineProps(['pagination']);
 
-const emit = defineEmits([ 'updatePagination' ])
+const emit = defineEmits(['updatePagination'])
 
 const pagination = ref({
     page: 1,
@@ -44,7 +44,7 @@ const setClass = (page) => {
                     <i class="fa-solid fa-chevron-left"></i>
                 </a>
             </li>
-            
+
             <li v-for="page in pagination.totalPages" class="page-item">
                 <a :class="setClass(page)" v-html="page" @click="changePage(page)"></a>
             </li>
@@ -57,3 +57,25 @@ const setClass = (page) => {
         </ul>
     </nav>
 </template>
+
+<style scoped>
+.page-link {
+    border-color: var(--black);
+    color: var(--black);
+}
+
+.page-link.active {
+    background-color: var(--black);
+    border-color: var(--black);
+    color: var(--white);
+}
+
+.page-link:hover,
+.page-link:focus {
+    border-color: var(--black);
+    color: var(--black);
+    box-shadow: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+</style>

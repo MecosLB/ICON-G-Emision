@@ -3,8 +3,8 @@ import { ref } from 'vue';
 import { removeErrors, setError } from '@/modules/composables/forms';
 import { validateCurp, validateRfc } from '@/modules/composables/inputs';
 import { showToast } from '@/modules/composables/alert';
-import LoaderData from '@/modules/dashboard/components/LoaderData.vue';
-import Footer from '@/modules/dashboard/components/Footer.vue';
+import LoaderData from '@/modules/components/LoaderData.vue';
+import Footer from '@/modules/components/Footer.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
