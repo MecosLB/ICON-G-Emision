@@ -2,12 +2,24 @@
 import { useRouter } from 'vue-router';
 const router = useRouter();
 
+import { showAlert, showToast } from '@/modules/composables/alert.js';
+
+import { logout } from '@/modules/helpers/auth.js';
+
 const closeSidebar = () => {
     const btn = document.getElementById('btn-sidebar');
     btn.click();
 }
 
-const closeSession = () => {
+const closeSession = async () => {
+    closeSidebar();
+
+    const response = await logout();
+
+    if (response.error) {
+        return;
+    }
+
     router.push({ name: 'login' });
 }
 </script>
@@ -16,8 +28,8 @@ const closeSession = () => {
     <header>
         <div class="d-flex align-items-center justify-content-between">
             <nav>
-                <button id="btn-sidebar" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar"
-                    aria-controls="sidebar">
+                <button id="btn-sidebar" class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#sidebar" aria-controls="sidebar">
                     <i class="fa-solid fa-bars-staggered"></i>
                 </button>
 
@@ -32,17 +44,20 @@ const closeSession = () => {
 
                     <div class="offcanvas-body p-2">
                         <ul class="list-group">
-                            <router-link :to="{ name: 'home' }" class="list-group-item list-group-item-action" @click="closeSidebar">
+                            <router-link :to="{ name: 'home' }" class="list-group-item list-group-item-action"
+                                @click="closeSidebar">
                                 <i class="fa-solid fa-house me-2"></i>
                                 Inicio
                             </router-link>
 
-                            <router-link :to="{ name: 'issue-cfdi' }" class="list-group-item list-group-item-action" @click="closeSidebar">
+                            <router-link :to="{ name: 'issue-cfdi' }" class="list-group-item list-group-item-action"
+                                @click="closeSidebar">
                                 <i class="fa-solid fa-file-invoice-dollar me-2"></i>
                                 Emitir C.F.D.I.
                             </router-link>
 
-                            <router-link :to="{ name: 'costumers' }" class="list-group-item list-group-item-action" @click="closeSidebar">
+                            <router-link :to="{ name: 'costumers' }" class="list-group-item list-group-item-action"
+                                @click="closeSidebar">
                                 <i class="fa-solid fa-address-book me-2"></i>
                                 Clientes
                             </router-link>
