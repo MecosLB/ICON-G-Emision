@@ -6,6 +6,7 @@ import { showToast } from '@/modules/composables/alert';
 import LoaderData from '@/modules/components/LoaderData.vue';
 import Footer from '@/modules/components/Footer.vue';
 import { useRouter } from 'vue-router';
+import { login } from '@/modules/helpers/auth';
 
 const router = useRouter();
 
@@ -21,7 +22,7 @@ const showLoaderForm = ref(false);
 const date = new Date();
 const year = date.getFullYear();
 
-const validateForm = () => {
+const validateForm = async () => {
     removeErrors();
 
     const form = loginForm.value;
@@ -44,17 +45,21 @@ const validateForm = () => {
         return;
     }
 
-    // if (!validateCurp(form.password)) {
-    //     showToast({ icon: 'error', message: 'C.U.R.P. Inválido' });
-    //     setError({ id: 'password-input', message: '' });
-    //     return;
-    // }
+    const data = {
+        rfc: form.rfc,
+        curp: form.password
+    };
 
     showLoaderForm.value = true;
+    const { error, message } = await login(data);
+    
+    if (error) {
+        showLoaderForm.value = false;
+        showToast({ icon: 'error', message: message });
+        return; 
+    }
 
-    setTimeout(() => {
-        router.push('/dashboard');
-    }, 1000);
+    router.push('/dashboard');
 }
 
 </script>
