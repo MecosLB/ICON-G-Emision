@@ -4,6 +4,7 @@ import store from '@/store';
 
 const api = store.state.api;
 const endPoint = `${api}/costumers`;
+const { token } = JSON.parse(localStorage.getItem('iconG'));
 
 export const createCostumer = async (rfcEmisor, costumer) => {
     try {
@@ -14,6 +15,8 @@ export const createCostumer = async (rfcEmisor, costumer) => {
         formData.append('rfcEmisor', rfcEmisor);
 
         formData.append('costumer', JSON.stringify(costumer));
+
+        formData.append('token', token);
 
         const response = await axios.post(url, formData);
 
@@ -34,6 +37,8 @@ export const deleteCostumer = async (rfcEmisor, costumer) => {
         formData.append('rfcEmisor', rfcEmisor);
 
         formData.append('costumer', JSON.stringify(costumer));
+
+        formData.append('token', token);
 
         const response = await axios.post(url, formData);
 
@@ -57,6 +62,8 @@ export const getCostumers = async (rfcEmisor, pagination = {}, filters = {}) => 
 
         formData.append('filters', JSON.stringify(filters));
 
+        formData.append('token', token);
+
         const response = await axios.post(url, formData);
 
         const { error, message, costumers, totalCostumers, totalPages } = response.data;
@@ -76,6 +83,8 @@ export const updateCostumer = async (rfcEmisor, costumer) => {
         formData.append('rfcEmisor', rfcEmisor);
 
         formData.append('costumer', JSON.stringify(costumer));
+
+        formData.append('token', token);
 
         const response = await axios.post(url, formData);
 
