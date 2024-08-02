@@ -18,11 +18,7 @@ export const login = async ({ rfc, curp }) => {
         if (!error)
             localStorage.setItem('iconG', JSON.stringify({
                 token: token,
-                emisor: {
-                    id: emisor.id,
-                    rfc: emisor.rfc,
-                    razonSocial: emisor.razonSocial,
-                }
+                emisor: emisor
             }));
 
         return { error: error, message: message }
