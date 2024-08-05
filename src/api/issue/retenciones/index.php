@@ -60,7 +60,7 @@ if (($_SERVER['REQUEST_METHOD'] == 'POST')) {
 
     if (isset($data['Emisor'])) {
         $xmlEmisor = $xml->addChild('retenciones:Emisor');
-        foreach ($data['Emisor'] as $attribute => $value) {
+        foreach ($data['Emisor']['x'] as $attribute => $value) {
             $value = trim($value);
             if (!empty($value)) {
                 $xmlEmisor->addAttribute($attribute, $value);

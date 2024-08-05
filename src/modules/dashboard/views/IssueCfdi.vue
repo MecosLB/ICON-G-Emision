@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 
+import xmlFormatter from 'xml-formatter';
+
 import Swal from 'sweetalert2';
 
 import Multiselect from '@vueform/multiselect';
@@ -11,6 +13,7 @@ import Alert from '@/modules/components/Alert.vue';
 
 import { showAlert, showToast } from '@/modules/composables/alert.js';
 import { removeError, removeErrors, setError } from '@/modules/composables/forms.js';
+import { validateCurp, validateNumber, validateRfc, validateUUID } from '@/modules/composables/inputs.js'
 
 import { retenciones } from '@/modules/helpers/issue.js'
 
@@ -23,6 +26,53 @@ const rfcEmisor = ref('XAXX010101000');
 onMounted(async () => {
     await loadView();
 });
+
+const xmlResponse = ref('');
+const strXml = ref('');
+
+const formattedXml = () => {
+    strXml.value = xmlFormatter(xmlResponse.value, {
+        indentation: '  ',
+        stripComments: false,
+    });
+}
+
+const addCfdiRel = () => {
+    removeErrors();
+
+    const form = cfdiForm.value;
+
+    const { TipoRelacion, UUID } = CfdiRetRelInputs.value;
+
+    if (TipoRelacion === null) {
+        showTab('cfdisRelacionados-tab');
+        showToast({ icon: 'error', message: 'Campo Requerido' });
+        setError({ id: 'TipoRelacion-input', message: '' });
+        return false;
+    }
+
+    if (UUID === '') {
+        showTab('cfdisRelacionados-tab');
+        showToast({ icon: 'error', message: 'Campo Requerido' });
+        setError({ id: 'UUID-input', message: '' });
+        return false;
+    }
+
+    if (!validateUUID(UUID)) {
+        showTab('cfdisRelacionados-tab');
+        showToast({ icon: 'error', message: 'Información Invalida' });
+        setError({ id: 'UUID-input', message: '' });
+        return false;
+    }
+
+    const cfdis = form.CfdiRetenRelacionados;
+
+    const find = cfdis.find(item => item.UUID === UUID);
+
+    if (!find) cfdis.push({ TipoRelacion, UUID });
+
+    resetCfdiRel();
+}
 
 const addEditTaxes = () => {
     removeErrors();
@@ -119,7 +169,7 @@ const cfdiForm = ref({
 });
 
 const CfdiRetRelInputs = ref({
-    TipoRelacion: '',
+    TipoRelacion: null,
     UUID: ''
 });
 
@@ -156,6 +206,12 @@ const confirmDelete = (index) => {
             cfdiForm.value.Totales.ImpRetenidos = taxes.filter((key, i) => i !== index);
         }
     });
+}
+
+const deleteCfdiRel = (index) => {
+    const form = cfdiForm.value;
+    const cfdis = form.CfdiRetenRelacionados;
+    form.CfdiRetenRelacionados = cfdis.filter((key, i) => i !== index);
 }
 
 const getCatalogs = async () => {
@@ -203,6 +259,15 @@ const issueCfdi = async () => {
         showAlert({ icon: 'error', title: '¡ERROR!', message: response.message });
         return;
     }
+
+    const element = document.getElementById('xml');
+    const modalXml = new bootstrap.Modal(element);
+    modalXml.show();
+
+    const xml = atob(response.xml);
+
+    xmlResponse.value = xml;
+    formattedXml();
 }
 
 const loadView = async () => {
@@ -253,6 +318,61 @@ const nacionalidades = ref([
     { label: 'Extranjero', value: 'Extranjero' },
 ]);
 
+const resetCfdiRel = () => {
+    CfdiRetRelInputs.value = {
+        TipoRelacion: null,
+        UUID: ''
+    };
+}
+
+const resetFormCfdi = () => {
+    removeErrors();
+
+    showTab('retenciones-tab');
+
+    cfdiForm.value = {
+        Retenciones: {
+            Version: '',
+            FolioInt: '',
+            Sello: '',
+            NoCertificado: '',
+            Certificado: '',
+            FechaExp: '',
+            LugarExpRetenc: '',
+            CveRetenc: null,
+            DescRetenc: ''
+        },
+        CfdiRetenRelacionados: [],
+        Emisor: {
+            RfcE: '',
+            NomDenRazSocE: '',
+            RegimenFiscalE: '',
+        },
+        Receptor: {
+            NacionalidadR: null,
+            RfcR: '',
+            NomDenRazSocR: '',
+            CurpR: '',
+            DomicilioFiscalR: '',
+            NumRegIdTribR: ''
+        },
+        Periodo: {
+            MesIni: null,
+            MesFin: null,
+            Ejercicio: null
+        },
+        Totales: {
+            MontoTotOperacion: '',
+            MontoTotGrav: '',
+            MontoTotExent: '',
+            MontoTotRet: '',
+            UtilidadBimestral: '',
+            ISRCorrespondiente: '',
+            ImpRetenidos: []
+        }
+    }
+}
+
 const resetFormTax = () => {
     removeErrors();
 
@@ -263,6 +383,15 @@ const resetFormTax = () => {
         monto: '',
         tipoPago: '',
     }
+}
+
+const returnTipoRelacion = (value) => {
+    const catalog = catalogs.value.tipoRelacion;
+
+    const find = catalog.find(item => item.value === value);
+
+    if (find) return find.label;
+    else return 'No asignado';
 }
 
 const selectNacionalidad = (value) => {
@@ -316,6 +445,13 @@ const validateCfdi = () => {
             return false;
         }
 
+        if (!validateRfc(Receptor.RfcR)) {
+            showTab('receptor-tab');
+            showToast({ icon: 'error', message: 'Información Invalida' });
+            setError({ id: 'RfcR-input', message: '' });
+            return false;
+        }
+
         if (Receptor.NomDenRazSocR == '') {
             showTab('receptor-tab');
             showToast({ icon: 'error', message: 'Campo Requerido' });
@@ -323,7 +459,14 @@ const validateCfdi = () => {
             return false;
         }
 
-        if (Receptor.CurpR != '') { }
+        if (Receptor.CurpR != '') {
+            if (!validateCurp(Receptor.CurpR)) {
+                showTab('receptor-tab');
+                showToast({ icon: 'error', message: 'Información Invalida' });
+                setError({ id: 'CurpR-input', message: '' });
+                return false;
+            }
+        }
 
         if (Receptor.DomicilioFiscalR == '') {
             showTab('receptor-tab');
@@ -379,9 +522,23 @@ const validateCfdi = () => {
         return false;
     }
 
+    if (!validateNumber(Totales.MontoTotOperacion)) {
+        showTab('totales-tab');
+        showToast({ icon: 'error', message: 'Información inválida' });
+        setError({ id: 'MontoTotOperacion-input', message: '' });
+        return false;
+    }
+
     if (Totales.MontoTotGrav == '') {
         showTab('totales-tab');
         showToast({ icon: 'error', message: 'Campo Requerido' });
+        setError({ id: 'MontoTotGrav-input', message: '' });
+        return false;
+    }
+
+    if (!validateNumber(Totales.MontoTotGrav)) {
+        showTab('totales-tab');
+        showToast({ icon: 'error', message: 'Información inválida' });
         setError({ id: 'MontoTotGrav-input', message: '' });
         return false;
     }
@@ -393,6 +550,13 @@ const validateCfdi = () => {
         return false;
     }
 
+    if (!validateNumber(Totales.MontoTotExent)) {
+        showTab('totales-tab');
+        showToast({ icon: 'error', message: 'Información inválida' });
+        setError({ id: 'MontoTotExent-input', message: '' });
+        return false;
+    }
+
     if (Totales.MontoTotRet == '') {
         showTab('totales-tab');
         showToast({ icon: 'error', message: 'Campo Requerido' });
@@ -400,9 +564,30 @@ const validateCfdi = () => {
         return false;
     }
 
-    if (Totales.UtilidadBimestral != '') { }
+    if (!validateNumber(Totales.MontoTotRet)) {
+        showTab('totales-tab');
+        showToast({ icon: 'error', message: 'Información inválida' });
+        setError({ id: 'MontoTotRet-input', message: '' });
+        return false;
+    }
 
-    if (Totales.ISRCorrespondiente != '') { }
+    if (Totales.UtilidadBimestral != '') {
+        if (!validateNumber(Totales.UtilidadBimestral)) {
+            showTab('totales-tab');
+            showToast({ icon: 'error', message: 'Información inválida' });
+            setError({ id: 'UtilidadBimestral-input', message: '' });
+            return false;
+        }
+    }
+
+    if (Totales.ISRCorrespondiente != '') {
+        if (!validateNumber(Totales.ISRCorrespondiente)) {
+            showTab('totales-tab');
+            showToast({ icon: 'error', message: 'Información inválida' });
+            setError({ id: 'ISRCorrespondiente-input', message: '' });
+            return false;
+        }
+    }
 
     if (Totales.ImpRetenidos.length > 0) { }
 
@@ -525,18 +710,19 @@ const removeErrorMultiSelects = () => {
                             <div class="col-12 col-sm-12 col-md-4">
                                 <label for="" class="fw-bold"> Tipo de Relación </label>
                                 <!-- <input type="text" class="form-control form-control-sm" placeholder="Requerido"> -->
-                                <Multiselect :options="catalogs.tipoRelacion" :id="'tipoRelacion-input'" :searchable="true"
-                                    trackBy="label" label="label" :placeholder="'Requerido'"
+                                <Multiselect :options="catalogs.tipoRelacion" :id="'TipoRelacion-input'"
+                                    :searchable="true" trackBy="label" label="label" :placeholder="'Requerido'"
                                     v-model="CfdiRetRelInputs.TipoRelacion" />
                             </div>
 
                             <div class="col-12 col-sm-12 col-md-4">
                                 <label for="" class="fw-bold"> U.U.I.D. </label>
-                                <input type="text" class="form-control form-control-sm" placeholder="Requerido">
+                                <input type="text" id="UUID-input" class="form-control form-control-sm"
+                                    placeholder="Requerido" v-model="CfdiRetRelInputs.UUID">
                             </div>
 
                             <div class="col-12 col-sm-12 col-md-4 d-flex align-items-center p-2">
-                                <button type="button" class="btn btn-sm btn-primary">
+                                <button type="button" class="btn btn-sm btn-primary" @click="addCfdiRel">
                                     <i class="fa-solid fa-plus"></i>
                                     Agregar
                                 </button>
@@ -553,9 +739,35 @@ const removeErrorMultiSelects = () => {
                                             <th scope="col"> </th>
                                         </tr>
                                     </thead>
+                                    <tbody>
+                                        <tr v-if="cfdiForm.CfdiRetenRelacionados.length > 0"
+                                            v-for="(cfdi, index) in cfdiForm.CfdiRetenRelacionados">
+                                            <td class="align-middle"> {{ returnTipoRelacion(cfdi.TipoRelacion) }} </td>
+                                            <td class="align-middle"> {{ cfdi.UUID }} </td>
+                                            <td class="align-middle text-center">
+                                                <div class="dropdown dropstart">
+                                                    <button type="button" class="btn btn-sm btn-primary"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                                    </button>
+
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <button class="dropdown-item" type="button"
+                                                                @click="deleteCfdiRel(index)">
+                                                                <i class="fa-solid fa-user-xmark text-danger me-2"></i>
+                                                                Eliminar
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
 
-                                <Alert v-if="cfdiForm.CfdiRetenRelacionados.length == 0" :configuration="configAlertCfdiRel" />
+                                <Alert v-if="cfdiForm.CfdiRetenRelacionados.length == 0"
+                                    :configuration="configAlertCfdiRel" />
                             </div>
                         </div>
                     </div>
@@ -568,8 +780,8 @@ const removeErrorMultiSelects = () => {
                             <div class="col-12 col-sm-12 col-md-4">
                                 <label for="" class="fw-bold mb-1"> Nacionalidad </label>
                                 <Multiselect :options="nacionalidades" :id="'NacionalidadR-input'" :searchable="true"
-                                    trackBy="label" label="label" @change="selectNacionalidad" :placeholder="'Requerido'"
-                                    v-model="cfdiForm.Receptor.NacionalidadR" />
+                                    trackBy="label" label="label" @change="selectNacionalidad"
+                                    :placeholder="'Requerido'" v-model="cfdiForm.Receptor.NacionalidadR" />
                             </div>
                         </div>
 
@@ -607,7 +819,8 @@ const removeErrorMultiSelects = () => {
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="periodo-tab-pane" role="tabpanel" aria-labelledby="periodo-tab" tabindex="3">
+                <div class="tab-pane fade" id="periodo-tab-pane" role="tabpanel" aria-labelledby="periodo-tab"
+                    tabindex="3">
                     <div class="p-2">
                         <div class="row mb-2">
                             <div class="col-12 col-sm-12 col-md-4">
@@ -638,7 +851,8 @@ const removeErrorMultiSelects = () => {
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="totales-tab-pane" role="tabpanel" aria-labelledby="totales-tab" tabindex="4">
+                <div class="tab-pane fade" id="totales-tab-pane" role="tabpanel" aria-labelledby="totales-tab"
+                    tabindex="4">
                     <div class="p-2">
                         <div class="row mb-2">
                             <div class="col-12 col-sm-12 col-md-4">
@@ -700,7 +914,8 @@ const removeErrorMultiSelects = () => {
                                     </thead>
 
                                     <tbody>
-                                        <tr v-if="cfdiForm.Totales.ImpRetenidos.length > 0" v-for="(tax, index) in cfdiForm.Totales.ImpRetenidos">
+                                        <tr v-if="cfdiForm.Totales.ImpRetenidos.length > 0"
+                                            v-for="(tax, index) in cfdiForm.Totales.ImpRetenidos">
                                             <td class="align-middle"> {{ tax.BaseRet }} </td>
                                             <td class="align-middle"> {{ tax.ImpuestoRet }} </td>
                                             <td class="align-middle"> {{ tax.MontoRet }} </td>
@@ -736,7 +951,8 @@ const removeErrorMultiSelects = () => {
                                     </tbody>
                                 </table>
 
-                                <Alert v-if="cfdiForm.Totales.ImpRetenidos.length == 0" :configuration="configAlertTaxes" />
+                                <Alert v-if="cfdiForm.Totales.ImpRetenidos.length == 0"
+                                    :configuration="configAlertTaxes" />
                             </div>
                         </div>
                     </div>
@@ -751,7 +967,7 @@ const removeErrorMultiSelects = () => {
                 Emitir Comprobante
             </button>
 
-            <button type="button" class="btn btn-sm btn-primary">
+            <button type="button" class="btn btn-sm btn-primary" @click="resetFormCfdi">
                 Limpiar Comprobante
             </button>
         </div>
@@ -816,4 +1032,28 @@ const removeErrorMultiSelects = () => {
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="xml" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="xmlLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="xmlLabel"></h6>
+                    <button type="button" id="btnCloseModalXml" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close" @click=""></button>
+                </div>
+
+                <div class="modal-body">
+                    <pre><code class="xml-content">{{ strXml }}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
+
+<style>
+.xml-content {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+</style>
